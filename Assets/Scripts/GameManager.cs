@@ -1,9 +1,17 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+    [SerializeField] float movement = 0;
+    [SerializeField] float time = 0;
+    [SerializeField] int highScore = 0;
+    int score;
+    bool gameLost;
+    bool newHighScore = false;
+
     public static GameManager Instance { get; private set; }
 
     private void Awake()
@@ -83,5 +91,48 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("Exited");
         Application.Quit();
+    }
+
+    public void OnEndGame(bool gameLost)
+    {
+        this.gameLost = gameLost;
+        movement = CountersLogic._distanceTraveled;
+        time = CountersLogic._elapsedTime;
+        if (!gameLost)
+        {
+            score = 1000 - Convert.ToInt32(time * 0.5f + movement * 1f);
+            if (score >= highScore)
+            {
+                newHighScore = true;
+                highScore = score;
+                PlayerPrefs.SetInt("HighScore", highScore);
+            }
+        }
+        SceneManager.LoadScene("Ending");
+    }
+
+    public bool IsNewrecord()
+    {
+        return newHighScore;
+    }
+    public float GetDis()
+    {
+        return movement;
+    }
+    public float GetTime()
+    {
+        return time;
+    }
+    public bool GetGameState()
+    {
+        return gameLost;
+    }
+    public int GetHighScore()
+    {
+        return highScore;
+    }
+    public int GetScore()
+    {
+        return score;
     }
 }
